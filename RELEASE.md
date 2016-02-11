@@ -15,6 +15,31 @@
   example, the shape argument to `tf.reshape` can't be a scalar anymore).  The
   open source release was already scalar strict, so outside Google `IsScalar`
   and `IsVector` are exact replacements.
+* The following files are being removed from `tensorflow/core/public/`:
+    * `env.h` -> `../platform/env.h`
+    * `status.h` -> `../lib/core/status.h`
+    * `tensor.h` -> `../framework/tensor.h`
+    * `tensor_shape.h` -> `../framework/tensor_shape.h`
+    * `partial_tensor_shape.h` -> `../framework/partial_tensor_shape.h`
+    * `tensorflow_server.h` deleted
+* For C++ API users: `TensorShape::ShortDebugString` has been renamed to
+  `DebugString`, and the previous `DebugString` behavior is gone (it was
+  needlessly verbose and produced a confusing empty string for scalars).
+* `GraphOptions.skip_common_subexpression_elimination` has been removed. All
+  graph optimizer options are now specified via
+  `GraphOptions.OptimizerOptions`.
+* ASSERT_OK / EXPECT_OK macros conflicted with external projects, so they were
+  renamed TF_ASSERT_OK, TF_EXPECT_OK.  The existing macros are currently
+  maintained for short-term compatibility but will be removed.
+* The non-public `nn.rnn` and the various `nn.seq2seq` methods now return
+  just the final state instead of the list of all states.
+* `tf.scatter_update` now no longer guarantees that lexicographically largest
+  index be used for update when duplicate entries exist.
+* `tf.image.random_crop(image, [height, width])` is now
+  `tf.random_crop(image, [height, width, depth])`, and `tf.random_crop` works
+  for any rank (not just 3-D images).  The C++ `RandomCrop` op has been replaced
+  with pure Python.
+
 
 ## Bug fixes
 

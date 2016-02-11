@@ -45,12 +45,12 @@ Note: Functions taking `Tensor` arguments can also take anything accepted by
 
 
 def get_module_to_name():
-  return {tf: 'tf',
-          tf.errors: 'tf.errors',
-          tf.image: 'tf.image',
-          tf.nn: 'tf.nn',
-          tf.train: 'tf.train',
-          tf.python_io: 'tf.python_io'}
+  return {tf: "tf",
+          tf.errors: "tf.errors",
+          tf.image: "tf.image",
+          tf.nn: "tf.nn",
+          tf.train: "tf.train",
+          tf.python_io: "tf.python_io",}
 
 def all_libraries(module_to_name, members, documented):
   # A list of (filename, docs.Library) pairs representing the individual files
@@ -86,6 +86,7 @@ def all_libraries(module_to_name, members, documented):
               prefix=PREFIX_TEXT),
       library("io_ops", "Inputs and Readers",
               exclude_symbols=["LookupTableBase", "HashTable",
+                               "PaddingFIFOQueue",
                                "initialize_all_tables",
                                "parse_single_sequence_example",
                                "string_to_hash_bucket"],
@@ -111,13 +112,17 @@ def all_libraries(module_to_name, members, documented):
                                "Int64List", "Example", "InferenceExample",
                                "FeatureList", "FeatureLists",
                                "RankingExample", "SequenceExample"]),
-      library("script_ops", "Wraps python functions", prefix=PREFIX_TEXT)
+      library("script_ops", "Wraps python functions", prefix=PREFIX_TEXT),
   ]
 
-_hidden_symbols = ["Event", "Summary", "xrange",
+_hidden_symbols = ["Event", "LogMessage", "Summary", "SessionLog", "xrange",
                    "HistogramProto", "ConfigProto", "NodeDef", "GraphDef",
                    "GPUOptions", "GraphOptions", "SessionInterface",
-                   "BaseSession"]
+                   "BaseSession", "NameAttrList", "AttrValue",
+                   "TensorArray", "OptimizerOptions",
+                   "CollectionDef", "MetaGraphDef", "QueueRunnerDef",
+                   "SaverDef", "VariableDef",
+                  ]
 
 def main(unused_argv):
   if not FLAGS.out_dir:

@@ -104,7 +104,7 @@ Creating a variable.
 
 - - -
 
-#### `tf.Variable.__init__(initial_value, trainable=True, collections=None, validate_shape=True, name=None)` {#Variable.__init__}
+#### `tf.Variable.__init__(initial_value=None, trainable=True, collections=None, validate_shape=True, name=None, variable_def=None)` {#Variable.__init__}
 
 Creates a new variable with value `initial_value`.
 
@@ -133,6 +133,9 @@ variable to its initial value.
     `initial_value` must be known.
 *  <b>`name`</b>: Optional name for the variable. Defaults to `'Variable'` and gets
     uniquified automatically.
+*  <b>`variable_def`</b>: `VariableDef` protocol buffer. If not `None`, recreates
+    the Variable object with its contents. `variable_def` and the other
+    arguments are mutually exclusive.
 
 ##### Returns:
 
@@ -141,8 +144,9 @@ variable to its initial value.
 ##### Raises:
 
 
-*  <b>`ValueError`</b>: If the initial value does not have a shape and
-    `validate_shape` is `True`.
+*  <b>`ValueError`</b>: If both `variable_def` and initial_value are specified.
+*  <b>`ValueError`</b>: If the initial value is not specified, or does not have a
+    shape and `validate_shape` is `True`.
 
 
 - - -
@@ -383,6 +387,13 @@ The `Operation` of this variable.
 #### Other Methods
 - - -
 
+#### `tf.Variable.from_proto(variable_def)` {#Variable.from_proto}
+
+
+
+
+- - -
+
 #### `tf.Variable.ref()` {#Variable.ref}
 
 Returns a reference to this variable.
@@ -398,6 +409,17 @@ variable.
 ##### Returns:
 
   A `Tensor` that is a reference to the variable.
+
+
+- - -
+
+#### `tf.Variable.to_proto()` {#Variable.to_proto}
+
+Converts a `Variable` to a `VariableDef` protocol buffer.
+
+##### Returns:
+
+  A `VariableDef` protocol buffer.
 
 
 - - -
@@ -670,11 +692,11 @@ checkpoints per device.
 *  <b>`reshape`</b>: If `True`, allows restoring parameters from a checkpoint
     where the variables have a different shape.
 *  <b>`sharded`</b>: If `True`, shard the checkpoints, one per device.
-*  <b>`max_to_keep`</b>: maximum number of recent checkpoints to keep.
-    Defaults to 10,000 hours.
+*  <b>`max_to_keep`</b>: Maximum number of recent checkpoints to keep.
+    Defaults to 5.
 *  <b>`keep_checkpoint_every_n_hours`</b>: How often to keep checkpoints.
     Defaults to 10,000 hours.
-*  <b>`name`</b>: string.  Optional name to use as a prefix when adding operations.
+*  <b>`name`</b>: String.  Optional name to use as a prefix when adding operations.
 *  <b>`restore_sequentially`</b>: A `Bool`, which if true, causes restore of different
     variables to happen sequentially within each device.  This can lower
     memory usage when restoring very large models.
@@ -695,7 +717,7 @@ checkpoints per device.
 
 - - -
 
-#### `tf.train.Saver.save(sess, save_path, global_step=None, latest_filename=None)` {#Saver.save}
+#### `tf.train.Saver.save(sess, save_path, global_step=None, latest_filename=None, meta_graph_suffix='meta')` {#Saver.save}
 
 Saves variables.
 
@@ -710,7 +732,7 @@ path can be passed directly to a call to `restore()`.
 
 
 *  <b>`sess`</b>: A Session to use to save the variables.
-*  <b>`save_path`</b>: string.  Path to the checkpoint filename.  If the saver is
+*  <b>`save_path`</b>: String.  Path to the checkpoint filename.  If the saver is
     `sharded`, this is the prefix of the sharded checkpoint filename.
 *  <b>`global_step`</b>: If provided the global step number is appended to
     `save_path` to create the checkpoint filename. The optional argument
@@ -720,6 +742,7 @@ path can be passed directly to a call to `restore()`.
     kept in the same directory as the checkpoint files, is automatically
     managed by the saver to keep track of recent checkpoints.  Defaults to
     'checkpoint'.
+*  <b>`meta_graph_suffix`</b>: Suffix for MetaGraphDef file. Defaults to 'meta'.
 
 ##### Returns:
 
@@ -731,6 +754,7 @@ path can be passed directly to a call to `restore()`.
 
 
 *  <b>`TypeError`</b>: If `sess` is not a `Session`.
+*  <b>`ValueError`</b>: If `latest_filename` contains path components.
 
 
 - - -
@@ -774,6 +798,8 @@ You can pass any of the returned values to `restore()`.
 
 #### `tf.train.Saver.set_last_checkpoints(last_checkpoints)` {#Saver.set_last_checkpoints}
 
+DEPRECATED: Use set_last_checkpoints_with_time.
+
 Sets the list of old checkpoint filenames.
 
 ##### Args:
@@ -796,6 +822,64 @@ Generates a `SaverDef` representation of this saver.
 ##### Returns:
 
   A `SaverDef` proto.
+
+
+
+#### Other Methods
+- - -
+
+#### `tf.train.Saver.export_meta_graph(filename=None, collection_list=None)` {#Saver.export_meta_graph}
+
+Writes `MetaGraphDef` to save_path/filename.
+
+##### Args:
+
+
+*  <b>`filename`</b>: Optional meta_graph filename including the path.
+*  <b>`collection_list`</b>: List of string keys to collect.
+
+##### Returns:
+
+  A `MetaGraphDef` proto.
+
+
+- - -
+
+#### `tf.train.Saver.from_proto(saver_def)` {#Saver.from_proto}
+
+
+
+
+- - -
+
+#### `tf.train.Saver.graph_def` {#Saver.graph_def}
+
+
+
+
+- - -
+
+#### `tf.train.Saver.set_last_checkpoints_with_time(last_checkpoints_with_time)` {#Saver.set_last_checkpoints_with_time}
+
+Sets the list of old checkpoint filenames and timestamps.
+
+##### Args:
+
+
+*  <b>`last_checkpoints_with_time`</b>: A list of tuples of checkpoint filenames and
+    timestamps.
+
+##### Raises:
+
+
+*  <b>`AssertionError`</b>: If last_checkpoints_with_time is not a list.
+
+
+- - -
+
+#### `tf.train.Saver.to_proto()` {#Saver.to_proto}
+
+Returns a `SaverDef` protocol buffer.
 
 
 
@@ -856,7 +940,7 @@ proto.
 
 *  <b>`save_dir`</b>: Directory where the model was saved.
 *  <b>`model_checkpoint_path`</b>: The checkpoint file.
-*  <b>`all_model_checkpoint_paths`</b>: list of strings.  Paths to all not-yet-deleted
+*  <b>`all_model_checkpoint_paths`</b>: List of strings.  Paths to all not-yet-deleted
     checkpoints, sorted from oldest to newest.  If this is a non-empty list,
     the last element must be equal to model_checkpoint_path.  These paths
     are also saved in the CheckpointState proto.
@@ -896,7 +980,8 @@ with tf.variable_scope("foo", reuse=True)
 
 If initializer is `None` (the default), the default initializer passed in
 the constructor is used. If that one is `None` too, a
-`UniformUnitScalingInitializer` will be used.
+`UniformUnitScalingInitializer` will be used. The initializer can also be
+a Tensor, in which case the variable is initialized to this value and shape.
 
 ##### Args:
 
@@ -1417,7 +1502,7 @@ Requires `updates.shape = indices.shape + ref.shape[1:]`.
 ##### Args:
 
 
-*  <b>`ref`</b>: A mutable `Tensor`. Must be one of the following types: `float32`, `float64`, `int64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `qint8`, `quint8`, `qint32`.
+*  <b>`ref`</b>: A mutable `Tensor`. Must be one of the following types: `float32`, `float64`, `int64`, `int32`, `uint8`, `uint16`, `int16`, `int8`, `complex64`, `qint8`, `quint8`, `qint32`.
     Should be from a `Variable` node.
 *  <b>`indices`</b>: A `Tensor`. Must be one of the following types: `int32`, `int64`.
     A tensor of indices into the first dimension of `ref`.
@@ -1464,7 +1549,7 @@ Requires `updates.shape = indices.shape + ref.shape[1:]`.
 ##### Args:
 
 
-*  <b>`ref`</b>: A mutable `Tensor`. Must be one of the following types: `float32`, `float64`, `int64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `qint8`, `quint8`, `qint32`.
+*  <b>`ref`</b>: A mutable `Tensor`. Must be one of the following types: `float32`, `float64`, `int64`, `int32`, `uint8`, `uint16`, `int16`, `int8`, `complex64`, `qint8`, `quint8`, `qint32`.
     Should be from a `Variable` node.
 *  <b>`indices`</b>: A `Tensor`. Must be one of the following types: `int32`, `int64`.
     A tensor of indices into the first dimension of `ref`.

@@ -31,11 +31,11 @@ limitations under the License.
 #include "tensorflow/core/framework/numeric_op.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
+#include "tensorflow/core/framework/tensor.h"
 #include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/lib/core/status.h"
 #include "tensorflow/core/lib/gtl/inlined_vector.h"
 #include "tensorflow/core/platform/logging.h"
-#include "tensorflow/core/public/status.h"
-#include "tensorflow/core/public/tensor.h"
 
 namespace tensorflow {
 
@@ -228,11 +228,9 @@ class ReductionHelper {
 
  private:
   bool reduce_first_axis_;  // True if need to reduce the 0-th dimension.
-  gtl::InlinedVector<int64, 4>
-      data_reshape_;  // Reshape the data before reduction.
-  gtl::InlinedVector<int64, 4> out_shape_;  // The final output shape.
-  gtl::InlinedVector<int64, 4>
-      out_reshape_;  // Reshape the output for reduction.
+  gtl::InlinedVector<int64, 4> data_reshape_;  // Reshape data before reduction.
+  gtl::InlinedVector<int64, 4> out_shape_;     // The final output shape.
+  gtl::InlinedVector<int64, 4> out_reshape_;   // Reshape output for reduction.
 };
 
 }  // end namespace
@@ -252,7 +250,7 @@ class ReductionOp : public OpKernel {
   void Compute(OpKernelContext* ctx) override {
     const Tensor& data = ctx->input(0);
     const Tensor& axes = ctx->input(1);
-    VLOG(1) << "data shape: " << data.shape().ShortDebugString();
+    VLOG(1) << "data shape: " << data.shape().DebugString();
     VLOG(1) << "axes      : " << axes.SummarizeValue(10);
 
     ReductionHelper helper;
